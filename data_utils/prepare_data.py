@@ -1,3 +1,10 @@
+import os, sys
+
+# adding current path for importing
+file_dir = os.path.dirname(__file__)
+sys.path.append(file_dir)
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from data_utils.preprocessing_utils import PreprocessOHE,EntitiesReplacer, apply_dropout, TwitterPreprocessing
 import pandas as pd
 import os, json, random

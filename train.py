@@ -60,8 +60,10 @@ def train(args):
     arch_config["embedding_config"]["num_embeddings"] = len(enc_dict)
     arch_config["embedding_config"]["padding_idx"] = enc_dict[PAD]
     arch_config["start_idx"] = enc_dict[START]
+    arch_config["mask_idx"] = enc_dict[MASK]
     arch_config["rnn_encoder_config"]["input_dim"] = arch_config["embedding_config"]["embedding_dim"]
     arch_config["rnn_decoder_config"]["input_dim"] = arch_config["embedding_config"]["embedding_dim"]
+
 
     TYPE_DISTR = arch_config["type_distr"]
 
@@ -185,8 +187,8 @@ def train(args):
     })
 
     optimizer = Adam(model.parameters(), lr=LR)
-    runner = ClassificationVAERunner(device=DEVICE)
 
+    runner = ClassificationVAERunner(device=DEVICE)
     runner.train(
             model=model,
             optimizer=optimizer,
@@ -210,7 +212,7 @@ def train(args):
     model.eval()
     with torch.no_grad():
         print("Generated samples: ")
-        s = model.generate(n=n, max_len=encoder.get_max_len_enc(), device=DEVICE).cpu()
+        s = model.generate(n=n, len_gen=encoder.get_max_len_enc(), device=DEVICE).cpu()
         for s_ in s:
             decoded_tokens = encoder.decode(s_, need_argmax=False)
             print(decoded_tokens)
