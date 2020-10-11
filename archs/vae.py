@@ -14,7 +14,7 @@ class VAE(nn.Module):
                  embeddding_dropout_rate,
                  type_distr,
                  final_layers,
-                 start_idx
+                 start_idx, mask_idx
                  ):
 
         super(VAE, self).__init__()
@@ -43,6 +43,7 @@ class VAE(nn.Module):
         )
 
         self.start_idx = start_idx
+        self.mask_idx = mask_idx
 
     def forward(self, unmasked_indexes, masked_indexes, seq_lens):
 
@@ -74,43 +75,20 @@ class VAE(nn.Module):
         return logits, distr_params
 
 
-
-    def generate(self, n, max_len, device):
+    def generate(self, n, len_gen, device):
         batch_size = n
         z = torch.randn([batch_size, self.latent_generator.get_output_dim()]).to(device)
-
         decoder_hidden = self.latent2decoder_hidden(z)
 
-        generated_indexes = torch.zeros(max_len+1, n).long().to(device)
+        seq_gen = torch.Tensor(n, len_gen+1).fill_(self.mask_idx).long().to(device)
+        seq_gen[0, :] = self.start_idx
 
-        generated_indexes[0,:] = self.start_idx
-        seq_lens = torch.ones(n)
+        embedded_masked_seq = self.embedding_layer(seq_gen)
+        seq_lens = torch.Tensor([len_gen+1]*n)
+        decoder_output = self.rnn_decoder(inputs=embedded_masked_seq,
+                                          seq_lens=seq_lens,
+                                          fill_hid=decoder_hidden)["rnn_out"]
 
-        start_embedded_token = torch.Tensor(n).fill_(self.start_idx).long().to(device)
-        start_embedded_token = self.embedding_layer(start_embedded_token)
-
-        generated_embeddings = start_embedded_token
-
-
-        for i in range(1, max_len+1):
-
-            decoder_output_ = self.rnn_decoder(
-                inputs=generated_embeddings,
-                seq_lens=seq_lens,
-                fill_hid=decoder_hidden
-            )
-
-            output_ = decoder_output_["rnn_out"][:, -1, :]
-            decoder_hidden = decoder_output_["last_hiddens"]
-            seq_lens = seq_lens + 1
-
-            output_ = self.finalizer(output_)
-
-            prev_token = torch.argmax(output_, dim=-1)
-            generated_indexes[i, :] = prev_token
-
-            input_ = self.embedding_layer(prev_token)
-            generated_embeddings = torch.cat([generated_embeddings, input_], dim=1).view(n, -1,
-                                                                                         self.embedding_layer.get_output_dim())
-
-        return generated_indexes.view(n, -1)
+        logits = self.finalizer(decoder_output)
+        indexes = torch.argmax(logits, dim=-1)
+        return indexes
