@@ -156,7 +156,6 @@ data_larger
 logs/*
 runs/*
 utils/callbacks.py
-configs
 models
 datasets
 trained_embeddings
