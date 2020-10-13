@@ -162,5 +162,4 @@ archs/sentence_vae.py
 Untitled.ipynb
 venv_
 test.py
-models
-
+remote_trained_models_1

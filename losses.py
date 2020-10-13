@@ -7,14 +7,29 @@ class KLD:
     @classmethod
     def norm_kld(cls, params_dict, add_args=None):
         mu = params_dict["mean"]
-        logvar = params_dict["std"]
+        logvar = params_dict["logstd"]
         KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+        return KLD
+
+    @classmethod
+    def cauchy_kld(cls, params_dict, add_args=None):
+        mu = params_dict["mean"]
+        logvar = params_dict["logstd"]
+        var = torch.exp(logvar)
+
+        KLD = - (torch.log(((var + 1)**2) + mu**2) - torch.log(4*var))
         return KLD
 
     @classmethod
     def get_kld_func(cls, distr_type):
         if distr_type == "N":
             return cls.norm_kld
+        if distr_type == "LogN":
+            return cls.norm_kld
+        if distr_type == "Cauchy":
+            return cls.cauchy_kld
+
+
 
 
 

@@ -237,15 +237,15 @@ if __name__ == '__main__':
 
     args.add_argument("-weight_kld_x", type=float, default=10)
 
-    args.add_argument("-mask_dropout", type=float, default=0.1)
+    args.add_argument("-mask_dropout", type=float, default=0.4)
     args.add_argument("-embedding_mask_dropout", type=float, default=0)
-    args.add_argument("-select_ratio", type=float, default=0.35)
+    args.add_argument("-select_ratio", type=float, default=0.1)
 
     # args.add_argument("-data_path", type=str, default="/home/oleg/ComparisonVAE/datasets/Tweets_masking_nopunct_nostops")
     # args.add_argument("-data_path", type=str, default="/home/oleg/ComparisonVAE/datasets/simpsons_ent_masking_nostopwords")
     args.add_argument("-data_path", type=str, default="/media/yevhen/Disk 1/Research/ComparisonVAE/datasets/covidTweets_ent_masking_nopunct_nostops")
     # args.add_argument("-logdir", type=str, default="/home/oleg/ComparisonVAE/models/normal_mdr35_emdr2_onlyMask")
-    args.add_argument("-logdir", type=str, default="/media/yevhen/Disk 1/Research/ComparisonVAE/models/normal/emDr0_maskDr10_sr35")
+    args.add_argument("-logdir", type=str, default="/media/yevhen/Disk 1/Research/ComparisonVAE/models/normal/emDr0_maskDr40_sr10")
     # args.add_argument("-resume_path", type=str, default="/home/oleg/ComparisonVAE/models/normal_mdr8_emdr85/checkpoints/train.3_full.pth")
     args.add_argument("-resume_path", type=str, default="")
     # args.add_argument("-model_params_path", type=str, default="/home/oleg/ComparisonVAE/run_configs/arch_config/normal_model_params.json")
