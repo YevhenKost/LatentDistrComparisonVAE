@@ -1,0 +1,34 @@
+{
+
+        "embedding_config":{
+            "embedding_dim": 512
+        },
+
+        "rnn_encoder_config":{
+            "rnn_type": "GRU",
+            "hidden_dim": 512,
+            "num_cells": 2,
+            "dropout": 0.1,
+            "bidir": true
+        },
+
+        "rnn_decoder_config": {
+            "rnn_type": "GRU",
+            "hidden_dim": 1024,
+            "num_cells": 2,
+            "dropout": 0.1,
+            "bidir": true
+        },
+
+        "latent_layers": [256, 256],
+
+        "type_distr": "Cauchy",
+        "distr_config": {
+            "mean_layers_dim": [256, 256],
+            "var_layers_dim": [256, 256],
+            "mean_output_dim": 512
+        },
+
+        "final_layers": [256, 256]
+
+    }
