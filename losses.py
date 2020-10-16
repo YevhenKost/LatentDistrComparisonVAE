@@ -4,6 +4,9 @@ import torch
 
 
 class KLD:
+
+    eps = 1e-12
+
     @classmethod
     def norm_kld(cls, params_dict, add_args=None):
         mu = params_dict["mean"]
@@ -17,7 +20,14 @@ class KLD:
         logvar = params_dict["logstd"]
         var = torch.exp(logvar)
 
-        KLD = - torch.sum((torch.log(((var + 1)**2) + mu**2) - torch.log(4*var)))
+        KLD = -torch.sum(
+
+            torch.log(
+                (var+1)**2 + mu**2
+            ) - torch.log(4*var + cls.eps)
+
+        )
+
         return KLD
 
     @classmethod
