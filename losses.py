@@ -17,7 +17,7 @@ class KLD:
         logvar = params_dict["logstd"]
         var = torch.exp(logvar)
 
-        KLD = - (torch.log(((var + 1)**2) + mu**2) - torch.log(4*var))
+        KLD = - torch.sum((torch.log(((var + 1)**2) + mu**2) - torch.log(4*var)))
         return KLD
 
     @classmethod
