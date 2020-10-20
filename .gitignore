@@ -163,3 +163,10 @@ Untitled.ipynb
 venv_
 test.py
 remote_trained_models_1
+remote_trained_models_2
+remote_trained_models_3
+remote_trained_models_4
+get_comp_table.py
+metric_out.csv
+merged_metrics.csv
+metric_out_remote.csv
