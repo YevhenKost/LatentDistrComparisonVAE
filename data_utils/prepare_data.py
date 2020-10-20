@@ -82,11 +82,13 @@ def save_prepared(args):
 
 
     sent_df["len"] = sent_df["tokenized_sents"].apply(lambda x: len(x))
-    sent_df[f"dropout_tokenized_sents_{drp_rate}"] = sent_df["tokenized_sents"].apply(lambda x: apply_dropout(x, drp_rate, mask_token))
 
     train_df, test_df = train_test_split(sent_df, random_state=2, test_size=test_size)
     train_df = train_df.reset_index()
     test_df = test_df.reset_index()
+
+    test_df[f"dropout_tokenized_sents_{drp_rate}"] = test_df["tokenized_sents"].apply(lambda x: apply_dropout(x, drp_rate, mask_token))
+
 
     train_df.to_json(os.path.join(save_path, "train.json"))
     test_df.to_json(os.path.join(save_path, "test.json"))

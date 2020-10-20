@@ -8,5 +8,5 @@
   "pad_token": "[PAD]",
   "end_seq_token": "[END]",
   "mask_token": "[MASK]",
-  "valid_dropout_rate": 0.5
+  "valid_dropout_rate": 0.1
 }
