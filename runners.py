@@ -1,8 +1,11 @@
 import torch
 from catalyst import dl
-import os
-import numpy as np
 import random
+
+from catalyst.core.callback import Callback
+from catalyst.core.callbacks.checkpoint import CheckpointCallback
+from catalyst.core.utils.callbacks import sort_callbacks_by_order
+
 
 class ClassificationVAERunner(dl.Runner):
 
@@ -88,7 +91,7 @@ class ClassificationVAERunner(dl.Runner):
         self.input = {
 
 
-            "true_unpadded_indexes": true_unpadded_indexes,
+            "true_unpadded_indexes": true_unpadded_indexes.long(),
             "true_padded_indexes": batch["unmasked_padded_indexes"],
             "true_selected_indexes": selected_dict["selected_target_indexes"],
 
@@ -117,9 +120,63 @@ class ClassificationVAERunner(dl.Runner):
             "pred_unpadded_indexes": torch.argmax(cutted_preds, dim=-1),
             "masked_preds": masked_results["masked_preds"],
             "pred_scores": preds.float(),
-            "distr_params": params_dict
+            "distr_params": params_dict,
+            "unpad_preds": cutted_preds.reshape(true_unpadded_vectors.shape).float()
 
         }
+
+
+    def infer(
+            self,
+            *,
+            model,
+            criterion,
+            optimizer,
+            datasets: "OrderedDict[str, Union[Dataset, Dict, Any]]" = None,
+            loaders: "OrderedDict[str, DataLoader]" = None,
+            callbacks: "Union[List[Callback], OrderedDict[str, Callback]]" = None,
+            logdir: str = None,
+            resume: str = None,
+            verbose: bool = False,
+            stage_kwargs = None,
+            fp16= None,
+            check: bool = False,
+            timeit: bool = False,
+            initial_seed: int = 42,
+            state_kwargs = None
+    ):
+        assert state_kwargs is None or stage_kwargs is None
+
+        if isinstance(fp16, bool) and fp16:
+            fp16 = {"opt_level": "O1"}
+
+        if resume is not None:
+            callbacks = sort_callbacks_by_order(callbacks)
+            checkpoint_callback_flag = any(
+                isinstance(x, CheckpointCallback) for x in callbacks.values()
+            )
+            if not checkpoint_callback_flag:
+                callbacks["loader"] = CheckpointCallback(resume=resume)
+            else:
+                raise NotImplementedError("CheckpointCallback already exist")
+
+        experiment = self._experiment_fn(
+            stage="infer",
+            model=model,
+            datasets=datasets,
+            loaders=loaders,
+            callbacks=callbacks,
+            logdir=logdir,
+            verbose=verbose,
+            check_time=timeit,
+            check_run=check,
+            stage_kwargs=stage_kwargs or state_kwargs,
+            distributed_params=fp16,
+            initial_seed=initial_seed,
+            criterion=criterion,
+            optimizer=optimizer
+        )
+        self.run_experiment(experiment)
 
 
 

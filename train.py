@@ -159,7 +159,7 @@ def train(args):
 
         "nlll": NLLLossCallback(
             input_key="true_unpadded_indexes",
-            output_key="pred_scores",
+            output_key="unpad_preds",
             reduction=LOSS_REDUCTION,
             prefix="nlll"
         ),
