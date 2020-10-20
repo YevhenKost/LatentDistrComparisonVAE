@@ -59,6 +59,39 @@ class KLDCallback(IBatchMetricCallback):
         """
         self._criterion = KLD.get_kld_func(self.distr_type)
 
+class NLLLossCallback(IBatchMetricCallback):
+    def __init__(self,
+                 output_key: str = "pred_scores",
+                 prefix: str = "nllloss",
+                 input_key="true_unpadded_indexes",
+                 reduction="sum",
+                 weights=None,
+                 tensorboard_callback_name: str = "_nllloss"
+                 ):
+        super().__init__(
+            prefix=prefix,
+            input_key=input_key,
+            output_key=output_key,
+            multiplier=1
+        )
+
+        self._loss = torch.nn.NLLLoss(reduction=reduction, weight=weights)
+
+    def get_criterion(self):
+        self._criterion = self._loss
+
+    @property
+    def metric_fn(self):
+        """Criterion function."""
+        return self._loss
+
+    def on_stage_start(self, runner: IRunner):
+        """Checks that the current stage has correct criterion.
+
+        Args:
+            runner (IRunner): current runner
+        """
+        self._criterion = self.get_criterion()
 
 class VizDecodeCallback(Callback):
     def __init__(self,

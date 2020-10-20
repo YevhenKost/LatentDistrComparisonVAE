@@ -12,7 +12,8 @@ from losses import NLLLoss_criterion
 from catalyst.core.callbacks import CriterionCallback
 from data_utils.data_loading import DataLoaders, read_sents
 from torch.optim import Adam
-from callbacks import CustomAccuracyCallback, KLDCallback, VizDecodeCallback, LinearWeightKLDCallback
+from callbacks import CustomAccuracyCallback, KLDCallback, \
+    VizDecodeCallback, LinearWeightKLDCallback, NLLLossCallback
 import torch, catalyst, json
 from collections import OrderedDict
 from encoders import OneHotEncoder
@@ -156,22 +157,29 @@ def train(args):
                 grad_clip_params=None
             ),
 
+        "nlll": NLLLossCallback(
+            input_key="true_unpadded_indexes",
+            output_key="pred_scores",
+            reduction=LOSS_REDUCTION,
+            prefix="nlll"
+        ),
+
         "pad_accuracy": CustomAccuracyCallback(
-            input_key = "true_padded_indexes",
-            output_key = "pred_padded_indexes",
-            prefix = "pad_accuracy"
+            input_key="true_padded_indexes",
+            output_key="pred_padded_indexes",
+            prefix="pad_accuracy"
         ),
 
         "unpad_accuracy": CustomAccuracyCallback(
-            input_key = "true_unpadded_indexes",
-            output_key = "pred_unpadded_indexes",
-            prefix = "unpad_accuracy"
+            input_key="true_unpadded_indexes",
+            output_key="pred_unpadded_indexes",
+            prefix="unpad_accuracy"
         ),
 
         "mask_accuracy": CustomAccuracyCallback(
-            input_key = "masked_indexes",
-            output_key = "masked_preds",
-            prefix = "mask_accuracy"
+            input_key="masked_indexes",
+            output_key="masked_preds",
+            prefix="mask_accuracy"
         ),
 
         "kld": KLDCallback(

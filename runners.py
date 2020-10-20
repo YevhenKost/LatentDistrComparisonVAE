@@ -99,28 +99,6 @@ class ClassificationVAERunner(dl.Runner):
             "true_unpadded_vectors": true_unpadded_vectors,
             "masked_indexes": masked_results["masked_targets"],
 
-
-            # "true_padded_vectors": batch["unmasked_padded_vectors"].float(),
-            # "true_padded_indexes": batch["unmasked_padded_indexes"],
-            #
-            #
-            # "true_selected_vectors": selected_dict["selected_targets"],
-            #
-            #
-            # "true_masked_vectors": masked_results["masked_targets_vectors"],
-            #
-            #
-            #
-            #
-            # "true_unpadded_vectors": true_unpadded_vectors,
-            #
-            #
-            #
-            # "target_unpadded_loss_dict": {
-            #     "mask": batch["mask"],
-            #      "true_indexes": torch.cat(batch["unmasked_unpadded_indexes"])
-            # }
-
         }
 
         self.output = {
@@ -140,24 +118,6 @@ class ClassificationVAERunner(dl.Runner):
             "masked_preds": masked_results["masked_preds"],
             "pred_scores": preds.float(),
             "distr_params": params_dict
-
-
-            # "masked_preds_vectors": masked_results["masked_preds_vectors"],
-            #
-            #
-            #
-            #
-            # "pred_padded_vectors": preds.float(),
-            # "pred_unpadded_vectors": cutted_preds.float(),
-            #
-            #
-            #
-            #
-            # "dist_loss_dict_masked": {
-            #     "reconstructed": masked_results["masked_preds_vectors"].float(),
-            #     "distr_params": params_dict
-            # },
-
 
         }
 
