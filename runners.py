@@ -2,11 +2,6 @@ import torch
 from catalyst import dl
 import random
 
-from catalyst.core.callback import Callback
-from catalyst.core.callbacks.checkpoint import CheckpointCallback
-from catalyst.core.utils.callbacks import sort_callbacks_by_order
-
-
 class ClassificationVAERunner(dl.Runner):
 
     def cut_preds(self, preds, seq_lens):
@@ -124,3 +119,5 @@ class ClassificationVAERunner(dl.Runner):
             "unpad_preds": cutted_preds.reshape(true_unpadded_vectors.shape).float()
 
         }
+
+

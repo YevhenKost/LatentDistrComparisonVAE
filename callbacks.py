@@ -1,10 +1,75 @@
 from catalyst.core.callbacks.metrics import IBatchMetricCallback, BatchMetricCallback
 from catalyst.dl import Callback, CallbackOrder, IRunner
-from losses import KLD
+from losses import KLD, NLLLoss_criterion
 from sklearn.metrics import accuracy_score
 import torch
 import random
+import json
+import numpy as np
 
+class FullLossCallback(IBatchMetricCallback):
+    def __init__(self,
+                 output_key: str = "distr_params",
+                 prefix: str = "norm_kld",
+                 input_key="true_padded_indexes",
+                 distr_type='N',
+                 loss_reduction="sum",
+                 tensorboard_callback_name: str = "_full_loss",
+                 weight=None
+                 ):
+        super().__init__(
+            prefix=prefix,
+            input_key=input_key,
+            output_key=output_key,
+            multiplier=1
+        )
+
+        self.distr_type = distr_type
+        self.loss = NLLLoss_criterion(reduction=loss_reduction, weights=weight, distr_type=distr_type)
+
+    def get_criterion(self):
+        self._criterion = self.loss
+
+    @property
+    def metric_fn(self):
+        """Criterion function."""
+        return self._criterion
+
+    def on_stage_start(self, runner: IRunner):
+        """Checks that the current stage has correct criterion.
+
+        Args:
+            runner (IRunner): current runner
+        """
+        self._criterion = self.loss
+
+class MetricsSaverCallback(Callback):
+    def __init__(self,
+                 save_path_json="mean_metrics.json"
+                 ):
+        super().__init__(CallbackOrder.Internal)
+
+        self._save_path = save_path_json
+        self.metrics = {}
+
+    def _reset_stats(self):
+        self.metrics = {}
+
+    def on_loader_end(self, runner: "IRunner"):
+
+        mean_metrics = {
+            k: np.mean(v) for k,v in self.metrics.items()
+        }
+        with open(self._save_path, "w") as f:
+            json.dump(mean_metrics, f)
+        self._reset_stats()
+
+    def on_batch_end(self, runner: "IRunner"):
+        metrics = runner.batch_metrics
+        for k, v in metrics.items():
+            if k not in self.metrics:
+                self.metrics[k] = []
+            self.metrics[k].append(v.item())
 
 class LinearWeightKLDCallback(Callback):
     def __init__(self,
@@ -152,6 +217,7 @@ class VizDecodeCallback(Callback):
         print(recostructed)
 
         self.reset_stats()
+
 
 
 def custom_accuracy(

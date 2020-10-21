@@ -161,13 +161,12 @@ trained_embeddings
 archs/sentence_vae.py
 Untitled.ipynb
 venv_
-test.py
 remote_trained_models_1
 remote_trained_models_2
 remote_trained_models_3
 remote_trained_models_4
+remote_trained_models_*
 get_comp_table.py
 metric_out.csv
 merged_metrics.csv
 metric_out_remote.csv
-None
