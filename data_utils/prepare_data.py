@@ -5,7 +5,7 @@ file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from data_utils.preprocessing_utils import PreprocessOHE,EntitiesReplacer, apply_dropout, TwitterPreprocessing
+from data_utils.preprocessing_utils import PreprocessOHE, apply_dropout, TwitterPreprocessing
 import pandas as pd
 import os, json, random
 from nltk.stem import WordNetLemmatizer
@@ -33,6 +33,7 @@ def save_prepared(args):
 
     drp_rate = preprocess_config["valid_dropout_rate"]
     test_size = preprocess_config["test_size"]
+    valid_size = preprocess_config["valid_size_from_train"]
 
     os.makedirs(save_path, exist_ok=True)
 
@@ -47,13 +48,6 @@ def save_prepared(args):
 
     print("Start preprocessing...")
     sent_df["sents"] = sent_df["sents"].apply(lambda x: TwitterPreprocessing.preprocess(x))
-
-    print("Start entities replacing")
-    replacement_dict = {x: "replacedentity" + x.lower() for x in ["PERSON", "DATE", "FAC", "ORG", "GPE", "TIME"]}
-    ent_replacer = EntitiesReplacer(replacement_dict)
-    sent_df["sents"] = sent_df["sents"].apply(lambda x: ent_replacer.process(x))
-    sent_df.to_csv(os.path.join(save_path, "ent_replaced.csv"))
-    print("Entities have been replaced")
     sent_df = sent_df.dropna().drop_duplicates()
 
     t = TweetTokenizer().tokenize
@@ -84,17 +78,23 @@ def save_prepared(args):
     sent_df["len"] = sent_df["tokenized_sents"].apply(lambda x: len(x))
 
     train_df, test_df = train_test_split(sent_df, random_state=2, test_size=test_size)
+    train_df, valid_df = train_test_split(train_df, random_state=2, test_size=valid_size)
     train_df = train_df.reset_index()
     test_df = test_df.reset_index()
+    valid_df = valid_df.reset_index()
 
     test_df[f"dropout_tokenized_sents_{drp_rate}"] = test_df["tokenized_sents"].apply(lambda x: apply_dropout(x, drp_rate, mask_token))
+    valid_df[f"dropout_tokenized_sents_{drp_rate}"] = valid_df["tokenized_sents"].apply(lambda x: apply_dropout(x, drp_rate, mask_token))
 
 
     train_df.to_json(os.path.join(save_path, "train.json"))
     test_df.to_json(os.path.join(save_path, "test.json"))
+    valid_df.to_json(os.path.join(save_path, "valid.json"))
+
 
     train_df.to_csv(os.path.join(save_path, "train.csv"))
     test_df.to_csv(os.path.join(save_path, "test.csv"))
+    valid_df.to_csv(os.path.join(save_path, "valid.csv"))
 
 
     print("Split length: (train, test)")
@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-save_dir", type=str, default="/media/yevhen/Disk 1/Research/ComparisonVAE/datasets/covidTweets_ent_masking_nopunct_nostops")
+    parser.add_argument("-save_dir", type=str, default="/media/yevhen/Disk 1/Research/ComparisonVAE/datasets/covidTweets_masking_nopunct_nostops")
     parser.add_argument("-load_path", type=str, default="/media/yevhen/Disk 1/DataSets/covidTweets/covid19_tweets.csv")
     parser.add_argument("-config_path", type=str, default="../configs/preprocessing_data_config.json")
 

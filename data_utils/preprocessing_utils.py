@@ -1,10 +1,8 @@
-from sklearn.model_selection import train_test_split
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from stop_words import get_stop_words
 import string
 from tqdm import tqdm
-import spacy
 import random
 
 class TwitterPreprocessing:
@@ -40,26 +38,6 @@ class TwitterPreprocessing:
 
         return text
 
-
-class EntitiesReplacer:
-    def __init__(self, ent_repl_dict):
-
-        self.spacy_ppl = spacy.load("en")
-        self.replacement_dict = ent_repl_dict
-
-    def process(self, text):
-        doc = self.spacy_ppl(text)
-        ents = [(x.text, x.label_) for x in doc.ents if x.label_ in self.replacement_dict]
-
-        replaced_text = self.replace_ents(text, ents)
-        return replaced_text
-
-    def replace_ents(self, text, ents):
-
-        for ent_text, label in ents:
-            text = text.replace(ent_text, " " + self.replacement_dict[label] + " ")
-        text = re.sub("\s+", " ", text)
-        return text
 
 
 class PreprocessOHE:
