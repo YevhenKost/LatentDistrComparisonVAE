@@ -45,11 +45,11 @@ class FullLossCallback(IBatchMetricCallback):
 
 class MetricsSaverCallback(Callback):
     def __init__(self,
-                 save_path_json="mean_metrics.json"
+                 save_path_dir
                  ):
         super().__init__(CallbackOrder.Internal)
 
-        self._save_path = save_path_json
+        self._save_path = save_path_dir
         self.metrics = {}
 
     def _reset_stats(self):
@@ -89,6 +89,26 @@ class LinearWeightKLDCallback(Callback):
 
     def kl_anneal_function(self):
         return min(1, self.step / self.x)
+
+class SigmoidWeightKLDCallback(Callback):
+    def __init__(self,
+                 x=2500,
+                 k=100
+                 ):
+        super().__init__(CallbackOrder.Internal)
+        self.x = x
+        self.k = k
+        self.step = 0
+
+    def on_batch_end(self, runner: "IRunner"):
+        self.step += 1
+        weight = self.kl_anneal_function()
+        runner.output["dist_loss_unpad"]["kld_weight"] = weight
+        runner.output["dist_loss_select"]["kld_weight"] = weight
+
+
+    def kl_anneal_function(self):
+        return float(1/(1+np.exp(-self.k*(self.step-self.x))))
 
 
 class KLDCallback(IBatchMetricCallback):
