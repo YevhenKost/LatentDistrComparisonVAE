@@ -2,6 +2,7 @@
   "min_df": 50,
   "max_df": 1.0,
   "test_size": 0.2,
+  "valid_size_from_train": 0.2,
   "drop_stop_words": true,
   "drop_punt": true,
   "start_seq_token": "[START]",

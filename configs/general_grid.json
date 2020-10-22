@@ -1,0 +1,23 @@
+{
+  "batch_size": 128,
+  "lr": 1e-3,
+  "loss_reduction": "sum",
+
+  "epochs": 10,
+  "device": "cuda",
+  "min_len": 10,
+  "max_len": 30,
+
+  "weight_kld_x": 0,
+  "weight_kld_k": 1e-4,
+
+  "scheduler_factor": 0.8,
+
+  "embedding_mask_dropout": 0,
+
+  "data_path": "datasets/covidTweets_masking_nopunct_nostops",
+  "resume_path": "",
+  "save_dir": "models/",
+
+  "distr": "normal"
+}
