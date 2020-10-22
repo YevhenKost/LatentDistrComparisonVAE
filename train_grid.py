@@ -219,7 +219,10 @@ def train(params_grid):
     })
 
     optimizer = Adam(model.parameters(), lr=LR)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=params_grid["scheduler_factor"])
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,
+                                                           factor=params_grid["scheduler_factor"],
+                                                           patience=params_grid["scheduler_patience"]
+                                                           )
 
     runner = ClassificationVAERunner(device=DEVICE)
     runner.train(

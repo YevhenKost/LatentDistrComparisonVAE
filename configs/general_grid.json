@@ -3,7 +3,7 @@
   "lr": 1e-3,
   "loss_reduction": "sum",
 
-  "epochs": 10,
+  "epochs": 50,
   "device": "cuda",
   "min_len": 10,
   "max_len": 30,
@@ -11,7 +11,8 @@
   "weight_kld_x": 0,
   "weight_kld_k": 1e-4,
 
-  "scheduler_factor": 0.8,
+  "scheduler_factor": 0.6,
+  "scheduler_patience": 3,
 
   "embedding_mask_dropout": 0,
 
