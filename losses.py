@@ -11,7 +11,7 @@ class KLD:
     def norm_kld(cls, params_dict, add_args=None):
         mu = params_dict["mean"]
         logvar = params_dict["logstd"]
-        KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+        KLD = 0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
         return KLD
 
     @classmethod
@@ -20,7 +20,7 @@ class KLD:
         logvar = params_dict["logstd"]
         var = torch.exp(logvar)
 
-        KLD = torch.sum(
+        KLD = -torch.sum(
 
             torch.log(
                 (var+1)**2 + mu**2
@@ -64,9 +64,9 @@ class NLLLoss_criterion(nn.Module):
         KLD = self.kld(params_dict)
 
         if self.losses_weigths:
-            TOTAL_LOSS = self.losses_weigths["KLD"]*KLD + self.losses_weigths["LOSS"]*LOSS
+            TOTAL_LOSS = self.losses_weigths["KLD"]*KLD - self.losses_weigths["LOSS"]*LOSS
         else:
-            TOTAL_LOSS = LOSS + kld_weight*KLD
+            TOTAL_LOSS = LOSS - kld_weight*KLD
 
         return TOTAL_LOSS
 

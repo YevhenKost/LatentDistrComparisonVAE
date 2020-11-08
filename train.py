@@ -260,10 +260,10 @@ if __name__ == '__main__':
     args.add_argument("-embedding_mask_dropout", type=float, default=0)
     args.add_argument("-select_ratio", type=float, default=1.0)
 
-    args.add_argument("-data_path", type=str, default="/media/yevhen/Disk 1/Research/ComparisonVAE/datasets/covidTweets_masking_nopunct_nostops")
-    args.add_argument("-logdir", type=str, default="/media/yevhen/Disk 1/Research/ComparisonVAE/models/lognormal/emDr0_maskDr20_sr100")
+    args.add_argument("-data_path", type=str, default="datasets/covidTweets_masking_nopunct_nostops")
+    args.add_argument("-logdir", type=str, default="trained_models/model/")
     args.add_argument("-resume_path", type=str, default="")
-    args.add_argument("-model_params_path", type=str, default="/media/yevhen/Disk 1/Research/ComparisonVAE/configs/lognormal_model_config.json")
+    args.add_argument("-model_params_path", type=str, default="configs/lognormal_model_config.json")
 
 
     args = args.parse_args()
