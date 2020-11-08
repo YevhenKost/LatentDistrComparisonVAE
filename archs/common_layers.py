@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 from torch.autograd import Variable
-
+from archs.fix import hotfix_pack_padded_sequence
 
 def get_relu_sequantial(input_dim, layers, output_dim, last_activation):
 
@@ -105,7 +105,10 @@ class RNNLayer(nn.Module):
 
         hidden = self._get_start_hidden(batch_size, device, fill_hid)
 
-        pack = torch.nn.utils.rnn.pack_padded_sequence(sorted_inputs, sorted_lengths, batch_first=True)
+        try:
+            pack = torch.nn.utils.rnn.pack_padded_sequence(sorted_inputs, sorted_lengths, batch_first=True)
+        except:
+            pack = hotfix_pack_padded_sequence(sorted_inputs, sorted_inputs, batch_first=True)
 
         rnn_out, last_hiddens = self.rnn_cell(pack, hidden)
         last_hiddens = last_hiddens.view(batch_size, -1)
