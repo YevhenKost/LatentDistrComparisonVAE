@@ -4,7 +4,6 @@
   "loss_reduction": "sum",
 
   "epochs": 50,
-  "device": "cuda",
   "min_len": 10,
   "max_len": 30,
 
@@ -16,9 +15,8 @@
 
   "embedding_mask_dropout": 0,
 
-  "data_path": "datasets/covidTweets_masking_nopunct_nostops",
+  "data_path": "/stream/covidTweets_masking_nopunct_nostops",
   "resume_path": "",
-  "save_dir": "models/",
+  "save_dir": "/tmp"
 
-  "distr": "normal"
 }

@@ -23,6 +23,7 @@
         "latent_layers": [256, 256],
 
         "type_distr": "Cauchy",
+
         "distr_config": {
             "mean_layers_dim": [256, 256],
             "var_layers_dim": [256, 256],
