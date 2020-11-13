@@ -249,45 +249,35 @@ def run(args):
     params_grid = json.load(open(params_grid_path, "r"))
     general_grid = json.load(open(general_grid_path, "r"))
 
-    general_grid["model_params_path"] = f"configs/{args.dist_type}_model_config.json"
+    dist_type = general_grid['distr']
+    general_grid["model_params_path"] = f"configs/{dist_type}_model_config.json"
 
     param_keys = list(params_grid.keys())
 
     params_combinations = itertools.product(*(params_grid[Name] for Name in param_keys))
 
-    general_grid['save_dir'] = os.path.join(general_grid['save_dir'], args.dist_type)
-
-    print(general_grid['save_dir'])
-
     os.makedirs(general_grid["save_dir"], exist_ok=True)
 
     for comb_ in params_combinations:
 
-        save_dir_name = args.dist_type + "_"
+        save_dir_name = dist_type + "_"
 
         for k, v in zip(param_keys, comb_):
             save_dir_name += f"__{k}_{v}"
             general_grid[k] = v
-
         logdir = os.path.join(general_grid["save_dir"], save_dir_name)
-
         general_grid["logdir"] = logdir
-        general_grid['device'] = args.device
-
         train(general_grid)
 
 
 
 if __name__ == '__main__':
-
     import argparse
 
     args = argparse.ArgumentParser()
 
     args.add_argument("-params_grid", type=str, default="configs/params_grid.json")
     args.add_argument("-gen_grid", type=str,  default="configs/general_grid.json")
-    args.add_argument("-dist_type", type=str, default="cauchy")
-    args.add_argument("-device", type=str, default="cpu")
 
     args = args.parse_args()
 
