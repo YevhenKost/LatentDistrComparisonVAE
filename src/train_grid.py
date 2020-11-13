@@ -6,39 +6,39 @@ file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-import torch
+import torch, itertools
 
 from archs.vae import VAE
-from runners import ClassificationVAERunner
-from losses import NLLLoss_criterion
+from src.runners import ClassificationVAERunner
+from src.losses import NLLLoss_criterion
 from catalyst.core.callbacks import CriterionCallback, SchedulerCallback
 from data_utils.data_loading import DataLoaders, read_sents
 from torch.optim import Adam
-from callbacks import CustomAccuracyCallback, KLDCallback, \
+from src.callbacks import CustomAccuracyCallback, KLDCallback, \
     VizDecodeCallback, SigmoidWeightKLDCallback, NLLLossCallback
 import catalyst, json
 from collections import OrderedDict
-from encoders import OneHotEncoder
-from utils import _fix_seeds
+from src.encoders import OneHotEncoder
+from src.utils import _fix_seeds
 
 
-def train(args):
+def train(params_grid):
 
     # fixing random seeds
     _fix_seeds()
 
     # setting training parameters
-    NUM_EPOCHS = args.epochs
-    BATCH_SIZE = args.batch_size
-    LR = args.lr
-    DEVICE = args.device
+    NUM_EPOCHS = params_grid["epochs"]
+    BATCH_SIZE = params_grid["batch_size"]
+    LR = params_grid["lr"]
+    DEVICE = params_grid["device"]
 
-    MAX_LEN = args.max_len
-    MIN_LEN = args.min_len
-    LOSS_REDUCTION=args.loss_reduction
+    MAX_LEN = params_grid["max_len"]
+    MIN_LEN = params_grid["min_len"]
+    LOSS_REDUCTION=params_grid["loss_reduction"]
 
-    dir_path = args.data_path
-    logdir = args.logdir
+    dir_path = params_grid["data_path"]
+    logdir = params_grid["logdir"]
 
     # loading embedding vocabularies
     embedding_path = os.path.join(dir_path, "encoding_dict.json")
@@ -57,9 +57,9 @@ def train(args):
 
     # building model arch
     arch_config = json.load(
-        open(args.model_params_path, "r")
+        open(params_grid["model_params_path"], "r")
     )
-    arch_config["embeddding_dropout_rate"] = args.embedding_mask_dropout
+    arch_config["embeddding_dropout_rate"] = params_grid["embedding_mask_dropout"]
     arch_config["embedding_config"]["num_embeddings"] = len(enc_dict)
     arch_config["embedding_config"]["padding_idx"] = enc_dict[PAD]
     arch_config["start_idx"] = enc_dict[START]
@@ -72,7 +72,7 @@ def train(args):
 
 
     # loading encoder
-    MASK_DROPOUT = args.mask_dropout
+    MASK_DROPOUT = params_grid["mask_dropout"]
 
     encoder = OneHotEncoder(
         enc_dict=enc_dict,
@@ -122,7 +122,7 @@ def train(args):
             dataset_config=train_dataset_config,
             batch_size=BATCH_SIZE,
             is_train=True,
-            select_ratio=args.select_ratio
+            select_ratio=params_grid["select_ratio"]
 
     ),
         "valid": DataLoaders.get_loader(
@@ -155,8 +155,8 @@ def train(args):
     callbacks = OrderedDict({
 
         "kld_weight": SigmoidWeightKLDCallback(
-            k=args.weight_kld_k,
-            x=args.weight_kld_x
+            k=params_grid["weight_kld_k"],
+            x=params_grid["weight_kld_x"]
         ),
 
         "criterion": CriterionCallback(
@@ -219,7 +219,10 @@ def train(args):
     })
 
     optimizer = Adam(model.parameters(), lr=LR)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=args.scheduler_factor)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,
+                                                           factor=params_grid["scheduler_factor"],
+                                                           patience=params_grid["scheduler_patience"]
+                                                           )
 
     runner = ClassificationVAERunner(device=DEVICE)
     runner.train(
@@ -233,38 +236,68 @@ def train(args):
             load_best_on_end=True,
             callbacks=callbacks,
             scheduler=scheduler,
-            resume=args.resume_path if args.resume_path else None,
+            resume=params_grid["resume_path"] if params_grid["resume_path"] else None,
             main_metric="nlll"
         )
 
+
+
+def run(args):
+    params_grid_path = args.params_grid
+    general_grid_path = args.gen_grid
+
+    params_grid = json.load(open(params_grid_path, "r"))
+    general_grid = json.load(open(general_grid_path, "r"))
+
+    general_grid["model_params_path"] = f"configs/{args.dist_type}_model_config.json"
+
+    param_keys = list(params_grid.keys())
+
+    params_combinations = itertools.product(*(params_grid[Name] for Name in param_keys))
+
+    general_grid['save_dir'] = os.path.join(general_grid['save_dir'], args.dist_type)
+
+    print(general_grid['save_dir'])
+
+    os.makedirs(general_grid["save_dir"], exist_ok=True)
+
+    for comb_ in params_combinations:
+
+        save_dir_name = args.dist_type + "_"
+
+        for k, v in zip(param_keys, comb_):
+            save_dir_name += f"__{k}_{v}"
+            general_grid[k] = v
+
+        logdir = os.path.join(general_grid["save_dir"], save_dir_name)
+
+        general_grid["logdir"] = logdir
+        general_grid['device'] = args.device
+
+        train(general_grid)
+
+
+
 if __name__ == '__main__':
+
     import argparse
 
     args = argparse.ArgumentParser()
 
-    args.add_argument("-batch_size", type=int, default=128)
-    args.add_argument("-lr", type=float, default=1e-3)
-    args.add_argument("-loss_reduction", type=str, default="sum")
-
-    args.add_argument("-epochs", type=int, default=10)
-    args.add_argument("-device", type=str, default="cuda")
-    args.add_argument("-min_len", type=int, default=10)
-    args.add_argument("-max_len", type=int, default=30)
-
-    args.add_argument("-weight_kld_x", type=float, default=10)
-    args.add_argument("-weight_kld_k", type=float, default=10)
-
-    args.add_argument("-scheduler_factor", type=float, default=0.85)
-
-    args.add_argument("-mask_dropout", type=float, default=0.2)
-    args.add_argument("-embedding_mask_dropout", type=float, default=0)
-    args.add_argument("-select_ratio", type=float, default=1.0)
-
-    args.add_argument("-data_path", type=str, default="datasets/covidTweets_masking_nopunct_nostops")
-    args.add_argument("-logdir", type=str, default="trained_models/model/")
-    args.add_argument("-resume_path", type=str, default="")
-    args.add_argument("-model_params_path", type=str, default="configs/lognormal_model_config.json")
-
+    args.add_argument("-params_grid", type=str, default="configs/params_grid.json")
+    args.add_argument("-gen_grid", type=str,  default="configs/general_grid.json")
+    args.add_argument("-dist_type", type=str, default="cauchy")
+    args.add_argument("-device", type=str, default="cpu")
 
     args = args.parse_args()
-    train(args)
+
+    run(args)
+
+
+
+
+
+
+
+
+

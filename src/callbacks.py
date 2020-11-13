@@ -1,6 +1,6 @@
 from catalyst.core.callbacks.metrics import IBatchMetricCallback, BatchMetricCallback
 from catalyst.dl import Callback, CallbackOrder, IRunner
-from losses import KLD, NLLLoss_criterion
+from src.losses import KLD, NLLLoss_criterion
 from sklearn.metrics import accuracy_score
 import torch
 import random

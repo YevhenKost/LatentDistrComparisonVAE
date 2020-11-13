@@ -7,13 +7,13 @@ sys.path.append(file_dir)
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from archs.vae import VAE
-from runners import ClassificationVAERunner
+from src.runners import ClassificationVAERunner
 from data_utils.data_loading import DataLoaders, read_sents
-from callbacks import CustomAccuracyCallback, KLDCallback, \
+from src.callbacks import CustomAccuracyCallback, KLDCallback, \
     VizDecodeCallback, LinearWeightKLDCallback, NLLLossCallback, MetricsSaverCallback, FullLossCallback
 import json
 from collections import OrderedDict
-from encoders import OneHotEncoder
+from src.encoders import OneHotEncoder
 
 
 def test_model(
