@@ -1,6 +1,6 @@
 # Prior latent distribution comparison for VAE
 
-Code for paper PAPER NAME
+Code for the paper "Prior latent distribution comparison for the RNN Variational Autoencoder in Low-Resource Natural Language Modeling"
 
 # Installation
 Install requirements from requirements.txt

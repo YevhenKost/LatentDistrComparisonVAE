@@ -89,13 +89,6 @@ def test_model(
     # setting callbacks in order
     callbacks = OrderedDict({
 
-        "full_loss": FullLossCallback(
-            input_key="true_selected_indexes",
-            output_key="dist_loss_select",
-            prefix="full_loss",
-            distr_type=TYPE_DISTR
-        ),
-
         "nlll": NLLLossCallback(
             input_key="true_unpadded_indexes",
             output_key="unpad_preds",
@@ -144,14 +137,6 @@ def test_model(
 
 
 def run(args):
-    # batch_size = 512
-    # pathes = [
-    #     "/media/yevhen/Disk 1/Research/ComparisonVAE/remote_trained_models_3/models"
-    # ]
-    # dir_path = "/media/yevhen/Disk 1/Research/ComparisonVAE/datasets/covidTweets_ent_masking_nopunct_nostops"
-    # save_path = "/media/yevhen/Disk 1/Research/ComparisonVAE/results_server/new_valid.csv"
-    #
-    # dropouts = [0.1, 0.2, 0.3, 0.4, 0.5]
 
     path = args.models_dir_path
     dir_path = args.data_dir_path
@@ -197,7 +182,7 @@ if __name__ == '__main__':
     args = argparse.ArgumentParser()
 
     args.add_argument("-models_dir_path", type=str, default="models/")
-    args.add_argument("-data_dir_path", type=str, default="datasets/covidTweets_ent_masking_nopunct_nostops_extended")
+    args.add_argument("-data_dir_path", Creattype=str, default="datasets/covidTweets_ent_masking_nopunct_nostops_extended")
     args.add_argument("-save_path", type=str, default="metrics.csv")
     args.add_argument("-batch_size", type=int, default=512)
     args.add_argument("-test_dropout", type=float, default=0.1)
