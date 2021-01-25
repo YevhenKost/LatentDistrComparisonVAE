@@ -89,13 +89,6 @@ def test_model(
     # setting callbacks in order
     callbacks = OrderedDict({
 
-        "full_loss": FullLossCallback(
-            input_key="true_selected_indexes",
-            output_key="dist_loss_select",
-            prefix="full_loss",
-            distr_type=TYPE_DISTR
-        ),
-
         "nlll": NLLLossCallback(
             input_key="true_unpadded_indexes",
             output_key="unpad_preds",
