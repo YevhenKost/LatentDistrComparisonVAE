@@ -15,8 +15,8 @@
 
   "embedding_mask_dropout": 0,
 
-  "data_path": "/Users/mykola/stream/covidTweets_masking_nopunct_nostops",
+  "data_path": "stream/data",
   "resume_path": "",
-  "save_dir": "/Users/mykola/tmp"
+  "save_dir": "/tmp/trained"
 
 }
