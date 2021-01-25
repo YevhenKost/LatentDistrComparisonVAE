@@ -1,7 +1,7 @@
 FROM nvidia/cuda:10.1-base
 
 RUN mkdir stream
-ADD covidTweets_masking_nopunct_nostops /stream/covidTweets_masking_nopunct_nostops
+ADD data /stream/data
 
 RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y curl
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils

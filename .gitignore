@@ -5,6 +5,7 @@ covidTweets_masking_nopunct_nostops/*
 __pycache__/
 *.py[cod]
 *$py.class
+data/*
 
 .DS_Store
 
