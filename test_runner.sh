@@ -1,0 +1,1 @@
+docker run --gpus all --rm -it -v ~/tmp:/tmp trainer python3 /src/test.py -models_dir_path /tmp/trained/ -data_dir_path /stream/data -save_path /tmp/test_metrics.csv  -test_dropout 0.5 -device "cuda:0" -min_len 5
