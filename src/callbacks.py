@@ -7,6 +7,9 @@ import random
 import json
 import numpy as np
 
+from src.utils import encoding 
+
+
 class FullLossCallback(IBatchMetricCallback):
     def __init__(self,
                  output_key: str = "distr_params",
@@ -223,11 +226,11 @@ class VizDecodeCallback(Callback):
 
         to_print_idx = random.randint(0, len(self.input_tokens)-1)
 
-        input_tokens = self.input_tokens[to_print_idx]
-        output_tokens = self.output_tokens[to_print_idx]
+        input_tokens = encoding(self.input_tokens[to_print_idx])
+        output_tokens = encoding(self.output_tokens[to_print_idx])
 
         recostructed = self.reconstructed[to_print_idx]
-        recostructed = self.encoder.decode(recostructed.detach().cpu().numpy())
+        recostructed = encoding(self.encoder.decode(recostructed.detach().cpu().numpy()))
 
         print("\nInput Tokens:")
         print(input_tokens)
