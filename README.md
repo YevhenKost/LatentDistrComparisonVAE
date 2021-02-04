@@ -3,7 +3,9 @@
 Code for paper PAPER NAME
 
 # Installation
-Install requirements from requirements.txt
+This a dockerized version of the repo.
+Just run the docker build there.
+
 <br> Run loading spacy model: 
 ```bash
 python -m spacy download en
