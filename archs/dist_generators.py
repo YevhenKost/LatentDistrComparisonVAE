@@ -3,6 +3,23 @@ from archs.common_layers import get_relu_sequantial
 import torch
 
 
+class DeterministicGenerator(nn.Module):
+    # Build the same way as other generators
+
+    def __init__(self, input_dim, output_dim):
+        super(DeterministicGenerator, self).__init__()
+
+        self.den_layer = nn.Linear(input_dim, output_dim)
+        self.out_dim = output_dim
+
+    def get_output_dim(self):
+        return self.out_dim
+
+    def forward(self, input):
+
+        generated_z = self.den_layer(input)
+        return generated_z, {"mean":None, "logstd":None}
+
 
 class NormalDistrGenerator(nn.Module):
     def __init__(self, input_dim, mean_layers_dim, mean_output_dim, var_layers_dim):

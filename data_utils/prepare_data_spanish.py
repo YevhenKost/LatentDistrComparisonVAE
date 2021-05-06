@@ -5,13 +5,11 @@ file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from data_utils.preprocessing_utils import PreprocessOHE, apply_dropout, TwitterPreprocessing
+from data_utils.preprocessing_utils import PreprocessOHE, apply_dropout, Preprocessing, SpanishTokenizerLemmatizer
 import pandas as pd
 import os, json, random
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import TweetTokenizer
 from sklearn.model_selection import train_test_split
-
+from nltk import sent_tokenize
 
 
 def save_prepared(args):
@@ -39,23 +37,24 @@ def save_prepared(args):
 
 
     sents = pd.read_csv(load_path)
-    sents = sents["text"].dropna().values.tolist()
+    sents = sents["content"].dropna().values.tolist()
     print(f"Total unfiltered loaded: {len(sents)}")
+
+    sents = [sent_tokenize(x) for x in sents]
+    sents = sum(sents, [])
 
     sent_df = pd.DataFrame()
     sent_df["sents"] = sents
     sent_df.to_csv(os.path.join(save_path, "read_sents.csv"))
 
     print("Start preprocessing...")
-    sent_df["sents"] = sent_df["sents"].apply(lambda x: TwitterPreprocessing.preprocess(x))
+    sent_df["sents"] = sent_df["sents"].apply(lambda x: Preprocessing.preprocess(x))
     sent_df = sent_df.dropna().drop_duplicates()
 
-    t = TweetTokenizer().tokenize
-    lem = WordNetLemmatizer()
+    tok_lem = SpanishTokenizerLemmatizer()
 
     print("Starting tokenization and lemmatizing...")
-    sent_df["tokenized_sents"] = sent_df["sents"].apply(lambda x: t(x))
-    sent_df["tokenized_sents"] = sent_df["tokenized_sents"].apply(lambda s: [lem.lemmatize(x) for x in s])
+    sent_df["tokenized_sents"] = sent_df["sents"].apply(lambda x: tok_lem(x))
 
     print("Building vocabulary...")
     enc_dict = PreprocessOHE.get_encoding_dict(sent_df["tokenized_sents"].values.tolist(),
@@ -112,8 +111,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-save_dir", type=str, default="/media/yevhen/Disk 1/Research/ComparisonVAE/datasets/covidTweets_masking_nopunct_nostops")
-    parser.add_argument("-load_path", type=str, default="/media/yevhen/Disk 1/DataSets/covidTweets/covid19_tweets.csv")
+    parser.add_argument("-save_dir", type=str, default="/media/yevhen/Disk 1/Research/ComparisonVAE/datasets/spanishPoetry_masking_nopunct_nostops")
+    parser.add_argument("-load_path", type=str, default="/media/yevhen/Disk 1/DataSets/spanishPoetry/poems.csv")
     parser.add_argument("-config_path", type=str, default="../configs/preprocessing_data_config.json")
 
     args = parser.parse_args()

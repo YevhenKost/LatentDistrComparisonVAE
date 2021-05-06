@@ -15,8 +15,10 @@
 
   "embedding_mask_dropout": 0,
 
-  "data_path": "/stream/covidTweets_masking_nopunct_nostops",
+  "data_path": "/media/yevhen/Disk 1/Research/ComparisonVAE/datasets/covidTweets_masking_nopunct_nostops",
   "resume_path": "",
-  "save_dir": "/tmp"
+  "save_dir": "/media/yevhen/Disk 1/Research/LatentDistrComparisonVAE/SAVEMODELS_covidTweets/",
+
+  "model_params_path": "/media/yevhen/Disk 1/Research/LatentDistrComparisonVAE/configs/deterministic_model_config.json"
 
 }

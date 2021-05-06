@@ -4,8 +4,11 @@ from stop_words import get_stop_words
 import string
 from tqdm import tqdm
 import random
+import spacy
+import stanza
+# stanza.download("uk")
 
-class TwitterPreprocessing:
+class Preprocessing:
 
     @classmethod
     def drop_hashtags(cls, text):
@@ -39,10 +42,34 @@ class TwitterPreprocessing:
         return text
 
 
+class SpanishTokenizerLemmatizer:
+    def __init__(self):
+        self.model = spacy.load("es")
+    def __call__(self, text):
+        return self.get_lemmas(text)
+    def get_lemmas(self, text):
+        doc = self.model(text)
+        lemmas = [x.lemma_ for x in doc]
+        return lemmas
+
+
+class UkrainianTokenizerLemmatizer:
+    def __init__(self, use_gpu=True):
+        self.model = stanza.Pipeline("uk", use_gpu=use_gpu, processors="tokenize,lemma")
+    def __call__(self, text):
+        return self.get_lemmas(text)
+    def get_lemmas(self, text):
+        doc = self.model(text)
+        lemmatized_output = []
+        for s in doc.sentences:
+            for t in s.words:
+                lemmatized_output.append(t.lemma)
+
+        return lemmatized_output
 
 class PreprocessOHE:
 
-    stop_words = get_stop_words("en")
+    stop_words = get_stop_words("en") + get_stop_words("uk")
     punct = [x for x in string.punctuation] + ['’', "..."]
 
     @classmethod

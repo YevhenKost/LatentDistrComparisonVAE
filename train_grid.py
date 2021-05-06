@@ -249,8 +249,12 @@ def run(args):
     params_grid = json.load(open(params_grid_path, "r"))
     general_grid = json.load(open(general_grid_path, "r"))
 
-    dist_type = general_grid['distr']
-    general_grid["model_params_path"] = f"configs/{dist_type}_model_config.json"
+    # dist_type = general_grid['distr_config_path']
+    # general_grid["model_params_path"] = f"configs/{dist_type}_model_config.json"
+
+    with open(general_grid["model_params_path"], "r") as a:
+        dist_type = json.load(a)["type_distr"]
+
 
     param_keys = list(params_grid.keys())
 
@@ -267,6 +271,7 @@ def run(args):
             general_grid[k] = v
         logdir = os.path.join(general_grid["save_dir"], save_dir_name)
         general_grid["logdir"] = logdir
+        general_grid["device"] = args.device
         train(general_grid)
 
 
@@ -278,16 +283,8 @@ if __name__ == '__main__':
 
     args.add_argument("-params_grid", type=str, default="configs/params_grid.json")
     args.add_argument("-gen_grid", type=str,  default="configs/general_grid.json")
+    args.add_argument("-device", type=str, default="cuda")
 
     args = args.parse_args()
 
     run(args)
-
-
-
-
-
-
-
-
-

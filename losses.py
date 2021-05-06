@@ -31,6 +31,10 @@ class KLD:
         return KLD
 
     @classmethod
+    def zero(cls, params_dict, add_args=None):
+        return 0
+
+    @classmethod
     def get_kld_func(cls, distr_type):
         if distr_type == "N":
             return cls.norm_kld
@@ -38,6 +42,8 @@ class KLD:
             return cls.norm_kld
         if distr_type == "Cauchy":
             return cls.cauchy_kld
+        if distr_type == "Deterministic":
+            return cls.zero
 
 
 

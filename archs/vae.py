@@ -1,7 +1,8 @@
 import torch.nn as nn
 import torch
 from archs.common_layers import ExtendedEmbeddingLayer, RNNLayer, get_relu_sequantial
-from archs.dist_generators import NormalDistrGenerator, LogNormalDistrGenerator, CauchyDistrGenerator
+from archs.dist_generators import NormalDistrGenerator, LogNormalDistrGenerator, \
+    CauchyDistrGenerator, DeterministicGenerator
 
 
 class VAE(nn.Module):
@@ -32,6 +33,8 @@ class VAE(nn.Module):
             self.latent_generator = LogNormalDistrGenerator(**distr_config)
         if type_distr == "Cauchy":
             self.latent_generator = CauchyDistrGenerator(**distr_config)
+        if type_distr == "Deterministic":
+            self.latent_generator = DeterministicGenerator(**distr_config)
 
 
         self.latent2decoder_hidden = get_relu_sequantial(
